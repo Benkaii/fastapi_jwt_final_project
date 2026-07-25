@@ -1,54 +1,84 @@
-# FastAPI User & Calculation Routes
+# FastAPI JWT Authentication Calculator
 
 ## Overview
 
-This project builds on the secure FastAPI application developed in previous modules by implementing complete BREAD (Browse, Read, Edit, Add, Delete) calculation routes and user authentication. The application uses FastAPI, SQLAlchemy, PostgreSQL, and Pydantic to securely manage users and calculation records while validating all incoming requests and responses.
+This project is a secure calculator web application built with FastAPI that implements JWT (JSON Web Token) authentication, PostgreSQL, Docker, Playwright end-to-end testing, Pytest, and GitHub Actions CI/CD.
 
-Users can register and log in using securely hashed passwords. Authenticated users can create, browse, read, update, and delete calculation records stored in a PostgreSQL database. The project also includes automated unit and integration testing, Docker containerization, GitHub Actions CI/CD, and Docker Hub deployment.
+The application allows users to:
 
----
-
-## Features
-
-- User Registration with secure password hashing
-- User Login with password verification
-- Browse all calculations
-- Read a calculation by ID
-- Add new calculations
-- Update existing calculations
-- Delete calculations
-- SQLAlchemy ORM models
-- PostgreSQL database integration
-- Pydantic request and response validation
-- Factory pattern for performing calculations
-- Unit and integration testing
-- Docker containerization
-- GitHub Actions CI/CD pipeline
-- Trivy container security scanning
-- Automatic Docker Hub deployment
+- Register a new account
+- Login using JWT authentication
+- Store passwords securely using password hashing
+- Perform calculator operations
+- Store calculation history in PostgreSQL
+- Run automated unit, integration, and Playwright end-to-end tests
+- Deploy using Docker and Docker Compose
 
 ---
 
-## Clone the Repository
+# Technologies Used
 
-```bash
-git clone https://github.com/Benkaii/fastapi_routes.git
-cd fastapi_routes
+- Python 3.10
+- FastAPI
+- SQLAlchemy
+- PostgreSQL
+- Pydantic
+- Passlib
+- python-jose (JWT)
+- Docker
+- Docker Compose
+- Pytest
+- Playwright
+- GitHub Actions
+
+---
+
+# Project Structure
+
+```
+.
+├── app/
+│   ├── auth.py
+│   ├── crud.py
+│   ├── database.py
+│   ├── models.py
+│   ├── schemas.py
+│   └── security.py
+│
+├── static/
+│   ├── css/
+│   └── js/
+│
+├── templates/
+│   ├── login.html
+│   └── register.html
+│
+├── tests/
+│   ├── integration/
+│   └── unit/
+│
+├── Dockerfile
+├── docker-compose.yml
+├── main.py
+├── requirements.txt
+└── README.md
 ```
 
 ---
 
-## Install Dependencies
+# Clone the Repository
 
 ```bash
-pip install -r requirements.txt
+git clone https://github.com/Benkaii/fastapi_jwt_auth.git
+
+cd fastapi_jwt_auth
 ```
 
 ---
 
-## Run the Application
+# Running the Application
 
-Build and start the application using Docker Compose:
+## Build and start Docker containers
 
 ```bash
 docker compose up --build
@@ -60,7 +90,23 @@ The application will be available at:
 http://localhost:8000
 ```
 
-Swagger API documentation:
+---
+
+# Front-End Pages
+
+### Registration Page
+
+```
+http://localhost:8000/register-page
+```
+
+### Login Page
+
+```
+http://localhost:8000/login-page
+```
+
+### Swagger API Documentation
 
 ```
 http://localhost:8000/docs
@@ -68,7 +114,7 @@ http://localhost:8000/docs
 
 ---
 
-## Run Tests Locally
+# Running Unit and Integration Tests
 
 Run all tests:
 
@@ -76,103 +122,121 @@ Run all tests:
 pytest
 ```
 
-Run only unit tests:
+Run with verbose output:
 
 ```bash
-pytest tests/unit -v
-```
-
-Run only integration tests:
-
-```bash
-pytest tests/integration -v
-```
-
-Run tests with code coverage:
-
-```bash
-pytest --cov=app --cov-report=term-missing
+pytest -v
 ```
 
 ---
 
-## Docker Hub
+# Running Playwright End-to-End Tests
 
-Docker image:
-
-https://hub.docker.com/r/benkaii/fastapi_calculations
-
-Pull the latest image:
+Install Playwright:
 
 ```bash
-docker pull benkaii/fastapi_calculations:latest
+pip install playwright
+```
+
+Install Playwright browsers:
+
+```bash
+python -m playwright install
+```
+
+Run the Playwright authentication tests:
+
+```bash
+pytest tests/integration/test_playwright_auth.py -v
+```
+
+Run with a visible browser:
+
+```bash
+pytest tests/integration/test_playwright_auth.py -v --headed
+```
+
+The Playwright test suite verifies:
+
+- Successful user registration
+- Successful user login
+- Invalid login handling
+- Password length validation
+- Password confirmation validation
+
+---
+
+# Docker Hub Repository
+
+Docker Image:
+
+```
+https://hub.docker.com/r/benkaii/fastapi_secure_users
 ```
 
 ---
 
-## GitHub Repository
+# GitHub Repository
 
-Repository:
-
-https://github.com/Benkaii/fastapi_routes
-
----
-
-## CI/CD Pipeline
-
-GitHub Actions automatically performs the following tasks whenever code is pushed to the repository:
-
-- Builds the Docker containers
-- Starts a PostgreSQL service
-- Runs unit tests
-- Runs integration tests
-- Verifies API functionality
-- Performs Trivy security scanning on the Docker image
-- Pushes the Docker image to Docker Hub after all tests pass successfully
+```
+https://github.com/Benkaii/fastapi_jwt_auth
+```
 
 ---
 
-## API Endpoints
+# Continuous Integration (GitHub Actions)
 
-### User Routes
+Every push to the repository automatically performs the following tasks:
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/users/register` | Register a new user |
-| POST | `/users/login` | Authenticate a user |
-| GET | `/users/{username}` | Retrieve a user by username |
-
-### Calculation Routes
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/calculations` | Browse all calculations |
-| POST | `/calculations` | Create a new calculation |
-| GET | `/calculations/{calculation_id}` | Read a calculation by ID |
-| PUT | `/calculations/{calculation_id}` | Update an existing calculation |
-| DELETE | `/calculations/{calculation_id}` | Delete a calculation |
+- Installs project dependencies
+- Builds the Docker image
+- Runs Pytest unit and integration tests
+- Runs Playwright end-to-end tests
+- Pushes the Docker image to Docker Hub after all tests pass
 
 ---
 
-## Technologies Used
+# Features
 
-- Python 3.10
-- FastAPI
-- SQLAlchemy
-- PostgreSQL
-- Pydantic
-- bcrypt
-- Pytest
-- Docker
-- Docker Compose
-- GitHub Actions
-- Trivy
+- JWT Authentication
+- Secure Password Hashing
+- User Registration
+- User Login
+- Client-side Form Validation
+- JWT Token Storage using localStorage
+- PostgreSQL Database
+- SQLAlchemy ORM
+- Docker Support
+- Playwright End-to-End Testing
+- Pytest Unit Testing
+- Pytest Integration Testing
+- GitHub Actions CI/CD Pipeline
 
 ---
 
-## Author
+# Screenshots Included
+
+This submission includes:
+
+- Registration page successfully creating a new user
+- Login page successfully authenticating a user
+- Playwright end-to-end tests passing
+- GitHub Actions workflow passing successfully
+
+---
+
+# Reflection
+
+During this project, I implemented JWT authentication into a FastAPI application while integrating PostgreSQL, Docker, Playwright, and GitHub Actions. One of the biggest challenges was troubleshooting Docker networking and database connectivity, particularly ensuring the application communicated correctly with the PostgreSQL container. I also learned how to securely hash passwords, generate and validate JWT tokens, perform client-side validation, and create automated end-to-end tests using Playwright.
+
+The project strengthened my understanding of secure authentication workflows, containerized application deployment, automated testing, and continuous integration. Debugging issues throughout development provided valuable experience with diagnosing application errors, interpreting logs, and systematically resolving configuration problems.
+
+---
+
+# Author
 
 **Ismael Albilal**
 
-Master of Science in Cybersecurity & Privacy  
 New Jersey Institute of Technology
+
+Python Web API Development – Module 13
