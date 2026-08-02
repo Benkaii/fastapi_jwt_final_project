@@ -1,8 +1,9 @@
 from passlib.context import CryptContext
 
-
+# PBKDF2-SHA256 is implemented by Passlib and avoids platform-specific
+# bcrypt backend problems while still storing a salted, one-way hash.
 password_context = CryptContext(
-    schemes=["bcrypt"],
+    schemes=["pbkdf2_sha256"],
     deprecated="auto",
 )
 

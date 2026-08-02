@@ -1,45 +1,74 @@
-version: "3.8"
-
 services:
   web:
     build: .
     container_name: fastapi_calculator
+    restart: unless-stopped
+
     ports:
       - "8000:8000"
+
     volumes:
       - .:/app
+
     environment:
-      PYTHONDONTWRITEBYTECODE: 1
-      PYTHONUNBUFFERED: 1
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
       DATABASE_URL: postgresql://postgres:postgres@db:5432/fastapi_db
+      SECRET_KEY: module13-development-secret-change-me
+
     depends_on:
-      - db
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+      db:
+        condition: service_healthy
+
+    command:
+      - uvicorn
+      - main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --reload
 
   db:
     image: postgres:16
     container_name: postgres_db
-    restart: always
+    restart: unless-stopped
+
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: fastapi_db
+
     ports:
       - "5432:5432"
+
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U postgres -d fastapi_db
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
 
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin
-    restart: always
+    restart: unless-stopped
+
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@example.com
       PGADMIN_DEFAULT_PASSWORD: admin
+
     ports:
       - "5050:80"
+
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 volumes:
   postgres_data:

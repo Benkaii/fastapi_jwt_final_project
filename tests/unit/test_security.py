@@ -7,7 +7,7 @@ def test_hash_password():
     hashed = hash_password(password)
 
     assert hashed != password
-    assert hashed.startswith("$2")
+    assert verify_password(password, hashed)
 
 
 def test_verify_password():

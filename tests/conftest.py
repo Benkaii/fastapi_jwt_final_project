@@ -8,8 +8,8 @@ from app.database import Base
 
 
 TEST_DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://postgres:postgres@db:5432/fastapi_db",
+    "TEST_DATABASE_URL",
+    "postgresql://postgres:postgres@localhost:5432/fastapi_db",
 )
 
 engine = create_engine(TEST_DATABASE_URL)
@@ -27,7 +27,8 @@ def prepare_database():
 
     yield
 
-    Base.metadata.drop_all(bind=engine)
+    # Do not drop the Docker application's tables after tests.
+    # Base.metadata.drop_all(bind=engine)
 
 
 @pytest.fixture

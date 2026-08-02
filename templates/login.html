@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<div class="container">
+
+    <h1>Login</h1>
+
+    <form id="loginForm">
+
+        <label>Username</label>
+        <input
+            type="text"
+            id="username"
+            placeholder="Enter Username"
+            required
+        >
+
+        <label>Password</label>
+        <input
+            type="password"
+            id="password"
+            placeholder="Enter Password"
+            required
+        >
+
+        <button type="submit">
+            Login
+        </button>
+
+    </form>
+
+    <p id="message"></p>
+
+    <hr>
+
+    <p>
+        Need an account?
+        <a href="/register">Register</a>
+    </p>
+
+</div>
+
+<script src="/static/js/auth.js"></script>
+
+<script>
+
+document.getElementById("loginForm").addEventListener("submit", async function(e){
+
+    e.preventDefault();
+
+    const username=document.getElementById("username").value;
+    const password=document.getElementById("password").value;
+    const message=document.getElementById("message");
+
+    message.innerText="";
+
+    try{
+
+        const response=await fetch("/login",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+
+                username:username,
+                password:password
+
+            })
+
+        });
+
+        const data=await response.json();
+
+        if(response.ok){
+
+            localStorage.setItem(
+                "token",
+                data.access_token
+            );
+
+            message.style.color="green";
+
+            message.innerText="Login Successful!";
+
+        }
+
+        else{
+
+            message.style.color="red";
+
+            message.innerText=data.detail || data.error || "Invalid username or password.";
+
+        }
+
+    }
+
+    catch(error){
+
+        message.style.color="red";
+
+        message.innerText="Unable to connect to server.";
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>

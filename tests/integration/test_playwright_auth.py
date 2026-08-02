@@ -1,13 +1,13 @@
 import uuid
 
-import pytest
 from playwright.sync_api import Page, expect
 
 
 BASE_URL = "http://127.0.0.1:8000"
 
 
-def unique_user() -> dict[str, str]:
+def create_unique_user() -> dict[str, str]:
+    """Create unique credentials so repeated test runs do not conflict."""
     unique = uuid.uuid4().hex[:8]
 
     return {
@@ -18,6 +18,7 @@ def unique_user() -> dict[str, str]:
 
 
 def register_user(page: Page, user: dict[str, str]) -> None:
+    """Register a user through the front-end form."""
     page.goto(f"{BASE_URL}/register-page")
 
     page.locator("#email").fill(user["email"])
@@ -32,8 +33,9 @@ def register_user(page: Page, user: dict[str, str]) -> None:
     )
 
 
-def test_successful_registration(page: Page):
-    user = unique_user()
+def test_successful_registration(page: Page) -> None:
+    """A valid user can register and receives a JWT."""
+    user = create_unique_user()
 
     register_user(page, user)
 
@@ -45,8 +47,9 @@ def test_successful_registration(page: Page):
     assert len(token) > 20
 
 
-def test_successful_login(page: Page):
-    user = unique_user()
+def test_successful_login(page: Page) -> None:
+    """A registered user can log in and receives a JWT."""
+    user = create_unique_user()
 
     register_user(page, user)
 
@@ -69,7 +72,8 @@ def test_successful_login(page: Page):
     assert len(token) > 20
 
 
-def test_invalid_login(page: Page):
+def test_invalid_login(page: Page) -> None:
+    """Invalid credentials display the proper error message."""
     page.goto(f"{BASE_URL}/login-page")
 
     page.locator("#username").fill("missing_user")
@@ -82,17 +86,19 @@ def test_invalid_login(page: Page):
     )
 
 
-def test_short_password_validation(page: Page):
+def test_short_password_validation(page: Page) -> None:
+    """A password shorter than eight characters is rejected."""
     page.goto(f"{BASE_URL}/register-page")
 
     page.locator("#email").fill("short@example.com")
     page.locator("#username").fill("short_user")
 
-    # Use JavaScript to bypass the browser's minlength restriction
-    # so the application's own client-side validation can be tested.
+    # Remove the browser's HTML minlength restriction so the test
+    # reaches the application's JavaScript validation.
     page.locator("#password").evaluate(
         "(element) => element.removeAttribute('minlength')"
     )
+
     page.locator("#confirmPassword").evaluate(
         "(element) => element.removeAttribute('minlength')"
     )
@@ -107,7 +113,8 @@ def test_short_password_validation(page: Page):
     )
 
 
-def test_passwords_do_not_match(page: Page):
+def test_passwords_do_not_match(page: Page) -> None:
+    """Different password and confirmation values are rejected."""
     page.goto(f"{BASE_URL}/register-page")
 
     page.locator("#email").fill("mismatch@example.com")
