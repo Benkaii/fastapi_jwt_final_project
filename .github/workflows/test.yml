@@ -47,6 +47,11 @@ jobs:
         run: |
           python -m playwright install --with-deps chromium
 
+      - name: Start FastAPI server
+        run: |
+          uvicorn main:app --host 127.0.0.1 --port 8000 &
+          sleep 10
+
       - name: Run unit and integration tests
         run: |
           pytest tests/unit tests/integration --cov=app --cov-fail-under=85 -v
