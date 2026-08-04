@@ -2,17 +2,19 @@
 
 ## Overview
 
-This project is a secure calculator web application built with FastAPI that implements JWT (JSON Web Token) authentication, PostgreSQL, Docker, Playwright end-to-end testing, Pytest, and GitHub Actions CI/CD.
+This project is a secure calculator web application built using FastAPI that implements JWT (JSON Web Token) authentication, PostgreSQL, Docker, Playwright end-to-end testing, Pytest, and GitHub Actions CI/CD.
 
-The application allows users to:
+The application allows authenticated users to:
 
 - Register a new account
 - Login using JWT authentication
-- Store passwords securely using password hashing
+- Securely hash passwords
 - Perform calculator operations
-- Store calculation history in PostgreSQL
-- Run automated unit, integration, and Playwright end-to-end tests
-- Deploy using Docker and Docker Compose
+- Create, Browse, Read, Edit, and Delete calculations (BREAD)
+- Store user-specific calculations in PostgreSQL
+- Run automated unit, integration, and Playwright tests
+- Build and deploy using Docker
+- Automatically test and deploy using GitHub Actions
 
 ---
 
@@ -36,32 +38,31 @@ The application allows users to:
 # Project Structure
 
 ```
-.
-├── app/
-│   ├── auth.py
-│   ├── crud.py
-│   ├── database.py
-│   ├── models.py
-│   ├── schemas.py
-│   └── security.py
-│
-├── static/
-│   ├── css/
-│   └── js/
-│
-├── templates/
-│   ├── login.html
-│   └── register.html
-│
-├── tests/
-│   ├── integration/
-│   └── unit/
-│
-├── Dockerfile
-├── docker-compose.yml
-├── main.py
-├── requirements.txt
-└── README.md
+app/
+    auth.py
+    crud.py
+    database.py
+    models.py
+    schemas.py
+    security.py
+
+static/
+    css/
+    js/
+
+templates/
+    login.html
+    register.html
+
+tests/
+    unit/
+    integration/
+
+main.py
+Dockerfile
+docker-compose.yml
+requirements.txt
+README.md
 ```
 
 ---
@@ -78,13 +79,13 @@ cd fastapi_jwt_auth
 
 # Running the Application
 
-## Build and start Docker containers
+Build and start the application using Docker.
 
 ```bash
 docker compose up --build
 ```
 
-The application will be available at:
+Once the containers finish building, open:
 
 ```
 http://localhost:8000
@@ -92,21 +93,21 @@ http://localhost:8000
 
 ---
 
-# Front-End Pages
+# Application Pages
 
-### Registration Page
+Registration Page
 
 ```
 http://localhost:8000/register-page
 ```
 
-### Login Page
+Login Page
 
 ```
 http://localhost:8000/login-page
 ```
 
-### Swagger API Documentation
+Swagger Documentation
 
 ```
 http://localhost:8000/docs
@@ -114,15 +115,15 @@ http://localhost:8000/docs
 
 ---
 
-# Running Unit and Integration Tests
+# Running Tests
 
-Run all tests:
+Run all tests
 
 ```bash
 pytest
 ```
 
-Run with verbose output:
+Verbose output
 
 ```bash
 pytest -v
@@ -130,69 +131,64 @@ pytest -v
 
 ---
 
-# Running Playwright End-to-End Tests
+# Running Playwright Tests
 
-Install Playwright:
+Install Playwright
 
 ```bash
 pip install playwright
 ```
 
-Install Playwright browsers:
+Install browser
 
 ```bash
 python -m playwright install
 ```
 
-Run the Playwright authentication tests:
+Run Playwright tests
 
 ```bash
 pytest tests/integration/test_playwright_auth.py -v
 ```
 
-Run with a visible browser:
+Run in headed mode
 
 ```bash
-pytest tests/integration/test_playwright_auth.py -v --headed
+pytest tests/integration/test_playwright_auth.py --headed -v
 ```
 
-The Playwright test suite verifies:
+Playwright verifies:
 
-- Successful user registration
-- Successful user login
-- Invalid login handling
-- Password length validation
-- Password confirmation validation
+- User Registration
+- User Login
+- Invalid Login
+- Password Validation
+- BREAD functionality
 
 ---
 
 # Docker Hub Repository
 
-Docker Image:
-
-```
-https://hub.docker.com/r/benkaii/fastapi_secure_users
-```
+https://hub.docker.com/r/benkaii/fastapi_calculations
 
 ---
 
 # GitHub Repository
 
-```
 https://github.com/Benkaii/fastapi_jwt_auth
-```
 
 ---
 
-# Continuous Integration (GitHub Actions)
+# GitHub Actions
 
-Every push to the repository automatically performs the following tasks:
+Every push automatically:
 
 - Installs project dependencies
 - Builds the Docker image
-- Runs Pytest unit and integration tests
+- Runs unit tests
+- Runs integration tests
 - Runs Playwright end-to-end tests
-- Pushes the Docker image to Docker Hub after all tests pass
+- Pushes the Docker image to Docker Hub
 
 ---
 
@@ -202,34 +198,34 @@ Every push to the repository automatically performs the following tasks:
 - Secure Password Hashing
 - User Registration
 - User Login
-- Client-side Form Validation
-- JWT Token Storage using localStorage
+- Browse Calculations
+- Read Calculation Details
+- Add Calculations
+- Edit Calculations
+- Delete Calculations
+- Client-side Validation
 - PostgreSQL Database
 - SQLAlchemy ORM
 - Docker Support
 - Playwright End-to-End Testing
 - Pytest Unit Testing
 - Pytest Integration Testing
-- GitHub Actions CI/CD Pipeline
+- GitHub Actions CI/CD
 
 ---
 
-# Screenshots Included
+# Included Screenshots
 
-This submission includes:
+This submission contains screenshots demonstrating:
 
-- Registration page successfully creating a new user
-- Login page successfully authenticating a user
-- Playwright end-to-end tests passing
-- GitHub Actions workflow passing successfully
-
----
-
-# Reflection
-
-During this project, I implemented JWT authentication into a FastAPI application while integrating PostgreSQL, Docker, Playwright, and GitHub Actions. One of the biggest challenges was troubleshooting Docker networking and database connectivity, particularly ensuring the application communicated correctly with the PostgreSQL container. I also learned how to securely hash passwords, generate and validate JWT tokens, perform client-side validation, and create automated end-to-end tests using Playwright.
-
-The project strengthened my understanding of secure authentication workflows, containerized application deployment, automated testing, and continuous integration. Debugging issues throughout development provided valuable experience with diagnosing application errors, interpreting logs, and systematically resolving configuration problems.
+- User Registration
+- User Login
+- Add Calculation
+- Read Calculation
+- Edit Calculation
+- Delete Calculation
+- GitHub Actions workflow
+- Docker Hub deployment
 
 ---
 
@@ -239,4 +235,6 @@ The project strengthened my understanding of secure authentication workflows, co
 
 New Jersey Institute of Technology
 
-Python Web API Development – Module 13
+IS 601 – Python Web API Development
+
+Summer 2026
