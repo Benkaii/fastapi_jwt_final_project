@@ -72,7 +72,7 @@ class CalculationCreate(BaseModel):
     b: float
     type: CalculationType
 
-    user_id: int = Field(gt=0)
+    user_id: int | None = None
 
     @model_validator(mode="after")
     def validate_division(self):
