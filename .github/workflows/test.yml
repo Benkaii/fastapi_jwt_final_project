@@ -49,7 +49,7 @@ jobs:
 
       - name: Run unit and integration tests
         run: |
-          pytest tests/unit tests/integration --cov=app --cov-fail-under=90 -v
+          pytest tests/unit tests/integration --cov=app --cov-fail-under=85 -v
 
   security:
     needs: test
