@@ -43,6 +43,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Install Playwright browsers
+        run: |
+          python -m playwright install --with-deps chromium
+
       - name: Run unit and integration tests
         run: |
           pytest tests/unit tests/integration --cov=app --cov-fail-under=90 -v
