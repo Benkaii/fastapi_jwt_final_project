@@ -184,18 +184,32 @@
 <div class="page-container">
 
     <div class="header">
+
         <div>
             <h1>Calculation Dashboard</h1>
             <p>Secure JWT-authenticated BREAD application</p>
         </div>
 
-        <button
-            type="button"
-            class="danger-button"
-            onclick="logout()"
-        >
-            Logout
-        </button>
+        <div style="display: flex; gap: 10px;">
+
+            <button
+                type="button"
+                class="secondary-button"
+                onclick="window.location.href='/profile-page'"
+            >
+                Profile
+            </button>
+
+            <button
+                type="button"
+                class="danger-button"
+                onclick="logout()"
+            >
+                Logout
+            </button>
+
+        </div>
+
     </div>
 
     <section class="card">

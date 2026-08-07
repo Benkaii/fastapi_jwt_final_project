@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>User Profile</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        .page-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+            font-size: 15px;
+        }
+
+        button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.65;
+        }
+
+        .primary-button {
+            background: #1266d4;
+            color: white;
+        }
+
+        .secondary-button {
+            background: #666;
+            color: white;
+        }
+
+        .danger-button {
+            background: #c62828;
+            color: white;
+        }
+
+        button:hover:not(:disabled) {
+            opacity: 0.88;
+        }
+
+        .message {
+            min-height: 22px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .success {
+            color: #157347;
+        }
+
+        .error {
+            color: #c62828;
+        }
+
+        .profile-summary {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 5px solid #1266d4;
+            background: #eef4fc;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 650px) {
+            body {
+                padding: 15px;
+            }
+
+            .header {
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .header-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="page-container">
+
+    <div class="header">
+        <div>
+            <h1>User Profile</h1>
+            <p>Manage your account information and password.</p>
+        </div>
+
+        <div class="header-buttons">
+            <button
+                type="button"
+                class="secondary-button"
+                onclick="window.location.href='/'"
+            >
+                Dashboard
+            </button>
+
+            <button
+                type="button"
+                class="danger-button"
+                onclick="logout()"
+            >
+                Logout
+            </button>
+        </div>
+    </div>
+
+    <section class="card">
+        <h2>Profile Information</h2>
+
+        <div id="profileSummary" class="profile-summary">
+            Loading profile information...
+        </div>
+
+        <form id="profileForm">
+
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input
+                    type="text"
+                    id="username"
+                    minlength="3"
+                    maxlength="50"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input
+                    type="email"
+                    id="email"
+                    required
+                >
+            </div>
+
+            <button
+                type="submit"
+                id="saveProfileButton"
+                class="primary-button"
+            >
+                Save Profile Changes
+            </button>
+
+        </form>
+
+        <p id="profileMessage" class="message"></p>
+    </section>
+
+    <section class="card">
+        <h2>Change Password</h2>
+
+        <form id="passwordForm">
+
+            <div class="form-group">
+                <label for="currentPassword">Current Password</label>
+                <input
+                    type="password"
+                    id="currentPassword"
+                    minlength="8"
+                    maxlength="128"
+                    autocomplete="current-password"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="newPassword">New Password</label>
+                <input
+                    type="password"
+                    id="newPassword"
+                    minlength="8"
+                    maxlength="128"
+                    autocomplete="new-password"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm New Password</label>
+                <input
+                    type="password"
+                    id="confirmPassword"
+                    minlength="8"
+                    maxlength="128"
+                    autocomplete="new-password"
+                    required
+                >
+            </div>
+
+            <button
+                type="submit"
+                id="changePasswordButton"
+                class="primary-button"
+            >
+                Change Password
+            </button>
+
+        </form>
+
+        <p id="passwordMessage" class="message"></p>
+    </section>
+
+</div>
+
+<script>
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        window.location.href = "/login-page";
+    }
+
+    function authenticatedHeaders(includeJson = false) {
+        const headers = {
+            "Authorization": `Bearer ${localStorage.getItem("token")}`
+        };
+
+        if (includeJson) {
+            headers["Content-Type"] = "application/json";
+        }
+
+        return headers;
+    }
+
+    async function handleUnauthorized(response) {
+        if (response.status === 401) {
+            localStorage.removeItem("token");
+            window.location.href = "/login-page";
+            return true;
+        }
+
+        return false;
+    }
+
+    function showMessage(element, text, isError = false) {
+        element.textContent = text;
+        element.className = isError
+            ? "message error"
+            : "message success";
+    }
+
+    function getErrorMessage(data, fallback) {
+        return (
+            data.error ||
+            data.detail ||
+            fallback
+        );
+    }
+
+    function displayProfile(profile) {
+        document.getElementById("username").value =
+            profile.username || "";
+
+        document.getElementById("email").value =
+            profile.email || "";
+
+        document.getElementById("profileSummary").innerHTML = `
+            <strong>Current Account</strong><br><br>
+            User ID: ${profile.id ?? "Unavailable"}<br>
+            Username: ${profile.username ?? "Unavailable"}<br>
+            Email: ${profile.email ?? "Unavailable"}<br>
+            Member since: ${
+                profile.created_at
+                    ? new Date(profile.created_at).toLocaleString()
+                    : "Unavailable"
+            }
+        `;
+    }
+
+    async function loadProfile() {
+        const profileMessage =
+            document.getElementById("profileMessage");
+
+        try {
+            const response = await fetch("/profile", {
+                method: "GET",
+                headers: authenticatedHeaders()
+            });
+
+            if (await handleUnauthorized(response)) {
+                return;
+            }
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    getErrorMessage(
+                        data,
+                        "Unable to load profile."
+                    )
+                );
+            }
+
+            displayProfile(data);
+
+        } catch (error) {
+            showMessage(
+                profileMessage,
+                error.message,
+                true
+            );
+        }
+    }
+
+    document
+        .getElementById("profileForm")
+        .addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            const username = document
+                .getElementById("username")
+                .value
+                .trim();
+
+            const email = document
+                .getElementById("email")
+                .value
+                .trim();
+
+            const profileMessage =
+                document.getElementById("profileMessage");
+
+            const saveButton =
+                document.getElementById("saveProfileButton");
+
+            profileMessage.textContent = "";
+
+            if (username.length < 3) {
+                showMessage(
+                    profileMessage,
+                    "Username must contain at least 3 characters.",
+                    true
+                );
+                return;
+            }
+
+            if (!email.includes("@")) {
+                showMessage(
+                    profileMessage,
+                    "Enter a valid email address.",
+                    true
+                );
+                return;
+            }
+
+            saveButton.disabled = true;
+            saveButton.textContent = "Saving...";
+
+            try {
+                const response = await fetch("/profile", {
+                    method: "PUT",
+                    headers: authenticatedHeaders(true),
+                    body: JSON.stringify({
+                        username: username,
+                        email: email
+                    })
+                });
+
+                if (await handleUnauthorized(response)) {
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(
+                        getErrorMessage(
+                            data,
+                            "Unable to update profile."
+                        )
+                    );
+                }
+
+                /*
+                 * The backend may return a refreshed JWT after
+                 * changing the username. Save it when present.
+                 */
+                if (data.access_token) {
+                    localStorage.setItem(
+                        "token",
+                        data.access_token
+                    );
+                }
+
+                /*
+                 * Support either:
+                 * 1. A direct user response
+                 * 2. A response containing a user/profile property
+                 */
+                const updatedProfile =
+                    data.user ||
+                    data.profile ||
+                    data;
+
+                if (updatedProfile.username) {
+                    displayProfile(updatedProfile);
+                } else {
+                    await loadProfile();
+                }
+
+                showMessage(
+                    profileMessage,
+                    "Profile updated successfully."
+                );
+
+            } catch (error) {
+                showMessage(
+                    profileMessage,
+                    error.message,
+                    true
+                );
+
+            } finally {
+                saveButton.disabled = false;
+                saveButton.textContent =
+                    "Save Profile Changes";
+            }
+        });
+
+    document
+        .getElementById("passwordForm")
+        .addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            const currentPassword = document
+                .getElementById("currentPassword")
+                .value;
+
+            const newPassword = document
+                .getElementById("newPassword")
+                .value;
+
+            const confirmPassword = document
+                .getElementById("confirmPassword")
+                .value;
+
+            const passwordMessage =
+                document.getElementById("passwordMessage");
+
+            const changeButton =
+                document.getElementById(
+                    "changePasswordButton"
+                );
+
+            passwordMessage.textContent = "";
+
+            if (
+                currentPassword.length < 8 ||
+                newPassword.length < 8 ||
+                confirmPassword.length < 8
+            ) {
+                showMessage(
+                    passwordMessage,
+                    "All passwords must contain at least 8 characters.",
+                    true
+                );
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                showMessage(
+                    passwordMessage,
+                    "New password and confirmation do not match.",
+                    true
+                );
+                return;
+            }
+
+            if (currentPassword === newPassword) {
+                showMessage(
+                    passwordMessage,
+                    "New password must be different from the current password.",
+                    true
+                );
+                return;
+            }
+
+            changeButton.disabled = true;
+            changeButton.textContent = "Changing Password...";
+
+            try {
+                const response = await fetch(
+                    "/profile/password",
+                    {
+                        method: "PUT",
+                        headers: authenticatedHeaders(true),
+                        body: JSON.stringify({
+                            current_password: currentPassword,
+                            new_password: newPassword,
+                            confirm_password: confirmPassword
+                        })
+                    }
+                );
+
+                if (await handleUnauthorized(response)) {
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(
+                        getErrorMessage(
+                            data,
+                            "Unable to change password."
+                        )
+                    );
+                }
+
+                document
+                    .getElementById("passwordForm")
+                    .reset();
+
+                showMessage(
+                    passwordMessage,
+                    data.message ||
+                    "Password updated successfully."
+                );
+
+            } catch (error) {
+                showMessage(
+                    passwordMessage,
+                    error.message,
+                    true
+                );
+
+            } finally {
+                changeButton.disabled = false;
+                changeButton.textContent =
+                    "Change Password";
+            }
+        });
+
+    function logout() {
+        localStorage.removeItem("token");
+        window.location.href = "/login-page";
+    }
+
+    loadProfile();
+</script>
+
+</body>
+</html>

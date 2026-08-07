@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Login</title>
 
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
+
 <body>
 
 <div class="container">
@@ -15,23 +17,27 @@
 
     <form id="loginForm">
 
-        <label>Username</label>
+        <label for="username">Username</label>
         <input
             type="text"
             id="username"
             placeholder="Enter Username"
+            minlength="3"
+            maxlength="50"
             required
         >
 
-        <label>Password</label>
+        <label for="password">Password</label>
         <input
             type="password"
             id="password"
             placeholder="Enter Password"
+            minlength="8"
+            maxlength="128"
             required
         >
 
-        <button type="submit">
+        <button type="submit" id="loginButton">
             Login
         </button>
 
@@ -48,74 +54,92 @@
 
 </div>
 
-<script src="/static/js/auth.js"></script>
-
 <script>
+    const existingToken = localStorage.getItem("token");
 
-document.getElementById("loginForm").addEventListener("submit", async function(e){
+    if (existingToken) {
+        window.location.href = "/";
+    }
 
-    e.preventDefault();
+    const loginForm = document.getElementById("loginForm");
+    const loginButton = document.getElementById("loginButton");
+    const message = document.getElementById("message");
 
-    const username=document.getElementById("username").value;
-    const password=document.getElementById("password").value;
-    const message=document.getElementById("message");
+    loginForm.addEventListener("submit", async function(event) {
+        event.preventDefault();
 
-    message.innerText="";
+        const username = document
+            .getElementById("username")
+            .value
+            .trim();
 
-    try{
+        const password = document
+            .getElementById("password")
+            .value;
 
-        const response=await fetch("/login",{
+        message.textContent = "";
+        message.style.color = "";
 
-            method:"POST",
+        if (username.length < 3) {
+            message.style.color = "red";
+            message.textContent =
+                "Username must contain at least 3 characters.";
+            return;
+        }
 
-            headers:{
-                "Content-Type":"application/json"
-            },
+        if (password.length < 8) {
+            message.style.color = "red";
+            message.textContent =
+                "Password must contain at least 8 characters.";
+            return;
+        }
 
-            body:JSON.stringify({
+        loginButton.disabled = true;
+        loginButton.textContent = "Logging in...";
 
-                username:username,
-                password:password
+        try {
+            const response = await fetch("/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            });
 
-            })
+            const data = await response.json();
 
-        });
-
-        const data=await response.json();
-
-        if(response.ok){
+            if (!response.ok) {
+                throw new Error(
+                    data.error ||
+                    data.detail ||
+                    "Invalid username or password."
+                );
+            }
 
             localStorage.setItem(
                 "token",
                 data.access_token
             );
 
-            message.style.color="green";
+            message.style.color = "green";
+            message.textContent = "Login Successful!";
 
-            message.innerText="Login Successful!";
+            window.location.href = "/";
 
+        } catch (error) {
+            message.style.color = "red";
+            message.textContent =
+                error.message ||
+                "Unable to connect to server.";
+
+        } finally {
+            loginButton.disabled = false;
+            loginButton.textContent = "Login";
         }
-
-        else{
-
-            message.style.color="red";
-
-            message.innerText=data.detail || data.error || "Invalid username or password.";
-
-        }
-
-    }
-
-    catch(error){
-
-        message.style.color="red";
-
-        message.innerText="Unable to connect to server.";
-
-    }
-
-});
-
+    });
 </script>
 
 </body>

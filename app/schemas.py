@@ -101,3 +101,52 @@ class CalculationRead(BaseModel):
     result: float
     user_id: int
     created_at: datetime
+
+class ProfileUpdate(BaseModel):
+    """Validate profile updates."""
+
+    username: str = Field(
+        min_length=3,
+        max_length=50,
+    )
+
+    email: EmailStr
+
+
+class PasswordChange(BaseModel):
+    """Validate password change requests."""
+
+    current_password: str = Field(
+        min_length=8,
+        max_length=128,
+    )
+
+    new_password: str = Field(
+        min_length=8,
+        max_length=128,
+    )
+
+    confirm_password: str = Field(
+        min_length=8,
+        max_length=128,
+    )
+
+    @model_validator(mode="after")
+    def passwords_match(self):
+        if self.new_password != self.confirm_password:
+            raise ValueError(
+                "New passwords do not match."
+            )
+
+        if self.current_password == self.new_password:
+            raise ValueError(
+                "New password must be different."
+            )
+
+        return self
+
+
+class PasswordChangeResponse(BaseModel):
+    """Response returned after changing a password."""
+
+    message: str

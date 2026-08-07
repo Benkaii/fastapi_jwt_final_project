@@ -35,12 +35,18 @@ from app.operations import add, divide, multiply, subtract
 from app.schemas import (
     CalculationCreate,
     CalculationRead,
+    PasswordChange,
+    PasswordChangeResponse,
+    ProfileUpdate,
     TokenResponse,
     UserCreate,
     UserLogin,
     UserRead,
 )
-from app.security import verify_password
+from app.security import (
+    hash_password,
+    verify_password,
+)
 
 
 logging.basicConfig(level=logging.INFO)
@@ -226,6 +232,18 @@ async def login_page(
     )
 
 
+@app.get("/profile-page")
+async def profile_page(
+    request: Request,
+):
+    """Serve the authenticated user profile page."""
+
+    return templates.TemplateResponse(
+        request=request,
+        name="profile.html",
+    )
+
+
 # --------------------------------------------------
 # Module 13 JWT authentication routes
 # --------------------------------------------------
@@ -356,6 +374,153 @@ def login_with_jwt(
     return TokenResponse(
         access_token=access_token,
         token_type="bearer",
+    )
+
+
+# --------------------------------------------------
+# Final project user profile routes
+# --------------------------------------------------
+
+
+@app.get(
+    "/profile",
+    response_model=UserRead,
+)
+def get_profile(
+    current_user: User = Depends(get_current_user),
+) -> User:
+    """Return the authenticated user's public profile information."""
+
+    return current_user
+
+
+@app.put(
+    "/profile",
+    response_model=TokenResponse,
+)
+def update_profile(
+    profile_data: ProfileUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> TokenResponse:
+    """Update the authenticated user's username and email.
+
+    A new JWT is returned because the username is stored in the token's
+    subject claim. Returning a refreshed token prevents the user from being
+    logged out immediately after changing the username.
+    """
+
+    username_owner = get_user_by_username(
+        db,
+        profile_data.username,
+    )
+
+    if username_owner is not None and username_owner.id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Username already exists",
+        )
+
+    email_owner = get_user_by_email(
+        db,
+        str(profile_data.email),
+    )
+
+    if email_owner is not None and email_owner.id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Email already exists",
+        )
+
+    try:
+        current_user.username = profile_data.username
+        current_user.email = str(profile_data.email)
+
+        db.commit()
+        db.refresh(current_user)
+
+    except IntegrityError as error:
+        db.rollback()
+
+        logger.error(
+            "Profile update database error for user %s: %s",
+            current_user.id,
+            error,
+        )
+
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Username or email already exists",
+        ) from error
+
+    access_token = create_access_token(
+        subject=current_user.username,
+        additional_claims={
+            "user_id": current_user.id,
+            "email": current_user.email,
+        },
+    )
+
+    logger.info(
+        "Updated profile for authenticated user %s",
+        current_user.id,
+    )
+
+    return TokenResponse(
+        access_token=access_token,
+        token_type="bearer",
+    )
+
+
+@app.put(
+    "/profile/password",
+    response_model=PasswordChangeResponse,
+)
+def change_password(
+    password_data: PasswordChange,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> PasswordChangeResponse:
+    """Verify the current password and securely store a new password hash."""
+
+    if not verify_password(
+        password_data.current_password,
+        current_user.password_hash,
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Current password is incorrect",
+        )
+
+    current_user.password_hash = hash_password(
+        password_data.new_password,
+    )
+
+    try:
+        db.commit()
+        db.refresh(current_user)
+
+    except Exception as error:
+        db.rollback()
+
+        logger.exception(
+            "Password update error for user %s: %s",
+            current_user.id,
+            error,
+        )
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Unable to update password",
+        ) from error
+
+    logger.info(
+        "Updated password for authenticated user %s",
+        current_user.id,
+    )
+
+    return PasswordChangeResponse(
+        message="Password updated successfully.",
     )
 
 
