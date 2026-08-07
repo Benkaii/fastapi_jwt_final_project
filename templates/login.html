@@ -55,12 +55,6 @@
 </div>
 
 <script>
-    const existingToken = localStorage.getItem("token");
-
-    if (existingToken) {
-        window.location.href = "/";
-    }
-
     const loginForm = document.getElementById("loginForm");
     const loginButton = document.getElementById("loginButton");
     const message = document.getElementById("message");
@@ -127,7 +121,9 @@
             message.style.color = "green";
             message.textContent = "Login Successful!";
 
-            window.location.href = "/";
+            setTimeout(function() {
+                window.location.href = "/";
+            }, 1000);
 
         } catch (error) {
             message.style.color = "red";
